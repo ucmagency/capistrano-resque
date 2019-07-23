@@ -62,10 +62,10 @@ namespace :resque do
   desc "Start Resque workers"
   task :start do
 
+    worker_id = 1
     for_each_workers do |role, workers|
       on roles(role) do
         create_pid_path
-        worker_id = 1
         workers.each_pair do |queue, number_of_workers|
           info "Starting #{number_of_workers} worker(s) with QUEUE: #{queue}"
           number_of_workers.times do
