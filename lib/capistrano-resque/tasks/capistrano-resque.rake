@@ -63,11 +63,11 @@ namespace :resque do
   task :start do
 
     worker_id = 1
-    execute 'cd /var/www/staging.ucastme.de/current'
     for_each_workers do |role, workers|
       on roles(role) do
         create_pid_path
         workers.each_pair do |queue, number_of_workers|
+          execute 'cd /var/www/staging.ucastme.de/current'
           info "release_path: #{fetch(:release_path)}"
           info "Starting #{number_of_workers} worker(s) with QUEUE: #{queue}"
           number_of_workers.times do
