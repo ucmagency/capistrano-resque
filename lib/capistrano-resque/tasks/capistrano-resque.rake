@@ -67,13 +67,11 @@ namespace :resque do
       on roles(role) do
         create_pid_path
         workers.each_pair do |queue, number_of_workers|
-          execute 'cd /var/www/staging.ucastme.de/current'
           info "release_path: #{fetch(:release_path)}"
           info "Starting #{number_of_workers} worker(s) with QUEUE: #{queue}"
           number_of_workers.times do
             pid = "#{fetch(:resque_pid_path)}/resque_work_#{worker_id}.pid"
             within current_path do
-              execute 'pwd'
               execute :nohup, %{#{SSHKit.config.command_map[:rake]} RACK_ENV=#{rails_env} RAILS_ENV=#{rails_env} #{fetch(:resque_extra_env)} QUEUE="#{queue}" PIDFILE=#{pid} BACKGROUND=yes #{"VERBOSE=1 " if fetch(:resque_verbose)}INTERVAL=#{fetch(:interval)} #{"environment " if fetch(:resque_environment_task)}resque:work #{output_redirection}}
             end
             worker_id += 1
