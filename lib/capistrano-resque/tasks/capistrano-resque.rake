@@ -48,9 +48,9 @@ namespace :resque do
   desc "See current worker status"
   task :status do
     on roles(*workers_roles) do
-      if test "[ -e #{fetch(:resque_pid_path)}/resque_work_1.pid ]"
+      files = capture(:ls, "-1 #{fetch(:resque_pid_path)}/resque_work*.pid") rescue ''
+      unless files.empty?
         within current_path do
-          files = capture(:ls, "-1 #{fetch(:resque_pid_path)}/resque_work*.pid")
           files.each_line do |file|
             info capture(:ps, "-f -p $(cat #{file.chomp}) | sed -n 2p")
           end
@@ -92,9 +92,10 @@ namespace :resque do
   desc "Quit running Resque workers"
   task :stop do
     on roles(*workers_roles) do
-      if test "[ -e #{fetch(:resque_pid_path)}/resque_work_1.pid ]"
+      files = capture(:ls, "-1 #{fetch(:resque_pid_path)}/resque_work*.pid") rescue ''
+      unless files.empty?
         within current_path do
-          pids = capture(:ls, "-1 #{fetch(:resque_pid_path)}/resque_work*.pid").lines.map(&:chomp)
+          pids = files.lines.map(&:chomp)
           pids.each do |pid_file|
             pid = capture(:cat, pid_file)
             if test "kill -0 #{pid} > /dev/null 2>&1"
